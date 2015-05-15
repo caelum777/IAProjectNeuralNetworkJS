@@ -107,9 +107,9 @@ function back_propagation(){
 }
 
 //variable_initialization();
-W1 = [[0.1, -0.7], [0.5, 0.3]];
+/*W1 = [[0.1, -0.7], [0.5, 0.3]];
 W2 = [[0.2, 0.4]];
 outputs[0] = 1;
 feed_foward([0, 1], true);
 console.log(W2);
-console.log(W1);
+console.log(W1);*/
