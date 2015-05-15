@@ -106,7 +106,55 @@ function back_propagation(){
     W2 = nw2.slice();
 }
 
-//variable_initialization();
+function toByteArray(input){
+    var result = [];
+    for(var i = 0; i < input.length; i+=4){
+        if(input[i] == 255){
+            result.push(0);
+        }else{
+            result.push(1);
+        }
+    }
+    return result;
+}
+
+function training(){
+    var canvas = document.getElementById("myCanvas"),
+        canvasContext = canvas.getContext("2d");
+    for(var i = 0; i < 36; i++){
+        var myImg = new Image();
+        //myImg.crossOrigin = 'anonymous';
+
+        // create an empty canvas element
+        /*myImg.onload = function() {
+            canvas.width = this.width;
+            canvas.height = this.height;
+
+            canvasContext.drawImage(this, 0, 0, this.width, this.height);
+            var imgData = canvasContext.getImageData(0, 0, 5, 5).data;
+            console.log(i);
+            console.log(imgData);
+        };*/
+
+        myImg.onload = (function(value){
+            return function(){
+                canvas.width = this.width;
+                canvas.height = this.height;
+
+                canvasContext.drawImage(this, 0, 0, this.width, this.height);
+                var imgData = canvasContext.getImageData(0, 0, 5, 5).data;
+                feed_foward(toByteArray(imgData), true);
+            }
+        })(i);
+
+        myImg.src = './training/Sample'+i.toString()+'.png';
+    }
+}
+
+variable_initialization();
+training();
+feed_foward(toByteArray([255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255]), false);
+
 /*W1 = [[0.1, -0.7], [0.5, 0.3]];
 W2 = [[0.2, 0.4]];
 outputs[0] = 1;
