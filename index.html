@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="myCanvas" width="5" height="5" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script>
+	var myImg = new Image();
+	myImg.crossOrigin = 'anonymous';
+
+    // create an empty canvas element
+    var canvas = document.createElement("canvas"),
+        canvasContext = canvas.getContext("2d");
+
+	myImg.onload = function() {
+
+		canvas.width = myImg.width;
+        canvas.height = myImg.height;
+
+		canvasContext.drawImage(myImg, 0, 0, myImg.width, myImg.height);
+		var imgData = canvasContext.getImageData(0, 0, 5, 5).data;
+		console.log(imgData);
+    }
+
+	myImg.src = 'Sample000.jpg';
+</script>
+
+</body>
+</html>

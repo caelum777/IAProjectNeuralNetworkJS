@@ -17,9 +17,9 @@ var results = ["0", "1", "2", "3", "4", "5",
     "U", "V", "W", "X", "Y", "Z"];
 var W1 = [];
 var W2 = [];
-var inputs_layer_neurons = 2; //225
-var hidden_layer_neurons = 2; //174
-var output_layer_neurons = 1; //36
+var inputs_layer_neurons = 25; //225
+var hidden_layer_neurons = 41; //174
+var output_layer_neurons = 36; //36
 var hidden_layer = [];
 var output_layer = [];
 var alpha = 0.25; //0.6
@@ -90,7 +90,7 @@ function back_propagation(){
     var nw2 = W2.slice();
     for(i = 0; i < output_layer.length; i++){
         var output = output_layer[i];
-        if(outputs[i] === 1 && output < 0.8){
+        if(outputs[i] === 1 && output < 0.8 || outputs[i] === 0 && output > 0.2){
             var delta = output * (1 - output) * (outputs[i] - output);
             for(y = 0; y < nw2[i].length; y++){
                 nw2[i][y] = nw2[i][y] + alpha * hidden_layer[y] * delta;
