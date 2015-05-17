@@ -19,12 +19,12 @@ var results = ["0", "1", "2", "3", "4", "5",
 var training_set = [];
 var W1 = [];
 var W2 = [];
-var inputs_layer_neurons = 25; //225
-var hidden_layer_neurons = 41; //174
+var inputs_layer_neurons = 25; //25
+var hidden_layer_neurons = 41; //31
 var output_layer_neurons = 36; //36
 var hidden_layer = [];
 var output_layer = [];
-var alpha = 0.6; //0.6
+var alpha = 0.9; //0.6
 var unbalanced = true;
 
 function calculate_results(){
@@ -44,17 +44,19 @@ function calculate_results(){
 
 function variable_initialization(){
     var weights = [];
+    var max = 2;
+    var min = -2;
     for(var i = 0; i < hidden_layer_neurons; i++){
         weights = [];
         for(var j = 0; j < inputs_layer_neurons; j++){
-            weights.push(Math.random());
+            weights.push(Math.random() * (max - min) + min);
         }
         W1.push(weights);
     }
     for(var x = 0; x < output_layer_neurons; x++){
         weights = [];
         for(var y = 0; y < hidden_layer_neurons; y++){
-            weights.push(Math.random());
+            weights.push(Math.random() * (max - min) + min);
         }
         W2.push(weights);
     }
@@ -114,7 +116,7 @@ function back_propagation(){
                 nw2[i][j] = W2[i][j] + alpha * hidden_layer[j] * delta;
             }
             for(var x = 0; x < W1.length; x++){
-                delta2 = hidden_layer[x] * (1 - hidden_layer[x]) * (W2[i][x] * delta);
+                var delta2 = hidden_layer[x] * (1 - hidden_layer[x]) * (W2[i][x] * delta);
                 for(var y = 0; y < W1[x].length; y++){
                     var temp = W1[x][y];
                     W1[x][y] = temp + alpha * inputs[y] * delta2;
@@ -178,8 +180,6 @@ function training(){
         x += 1;
     }
     console.log("Done training");
-    //outputs[0] = 1;
-    //feed_foward([0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0], true);
 }
 
 function train(){
@@ -189,7 +189,7 @@ function train(){
 
 function test(){
     outputs[0] = 1;
-    feed_foward([1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0], false);
+    feed_foward([1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0], false);
     outputs[0] = 0;
 }
 
