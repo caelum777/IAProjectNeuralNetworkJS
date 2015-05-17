@@ -15,6 +15,8 @@ var results = ["0", "1", "2", "3", "4", "5",
     "I", "J", "K", "L", "M", "N",
     "O", "P", "Q", "R", "S", "T",
     "U", "V", "W", "X", "Y", "Z"];
+
+var training_set = [];
 var W1 = [];
 var W2 = [];
 var inputs_layer_neurons = 25; //225
@@ -22,14 +24,15 @@ var hidden_layer_neurons = 41; //174
 var output_layer_neurons = 36; //36
 var hidden_layer = [];
 var output_layer = [];
-var alpha = 0.25; //0.6
+var alpha = 0.6; //0.6
+var unbalanced = true;
 
 function calculate_results(){
     var greater = 0;
     var listindex = [];
     var index = 0;
 
-    for(i = 0; i < output_layer.length; i++){
+    for(var i = 0; i < output_layer.length; i++){
         if(output_layer[i] > greater){
             greater = output_layer[i];
             listindex.push(i);
@@ -40,16 +43,17 @@ function calculate_results(){
 }
 
 function variable_initialization(){
-    for(x = 0; x < hidden_layer_neurons; x++){
-        var weights = [];
-        for(y = 0; y < inputs_layer_neurons; y++){
+    var weights = [];
+    for(var i = 0; i < hidden_layer_neurons; i++){
+        weights = [];
+        for(var j = 0; j < inputs_layer_neurons; j++){
             weights.push(Math.random());
         }
         W1.push(weights);
     }
-    for(x = 0; x < output_layer_neurons; x++){
-        var weights = [];
-        for(y = 0; y < hidden_layer_neurons; y++){
+    for(var x = 0; x < output_layer_neurons; x++){
+        weights = [];
+        for(var y = 0; y < hidden_layer_neurons; y++){
             weights.push(Math.random());
         }
         W2.push(weights);
@@ -61,17 +65,19 @@ function sigmoid(z){
 }
 
 function feed_foward(input, Tphase){
-    for (x = 0; x < hidden_layer_neurons; x++) {
+    hidden_layer = [];
+    output_layer = [];
+    for (var i = 0; i < hidden_layer_neurons; i++) {
         var hidden_input = 0;
-        for(y = 0; y < input.length; y++){
-            hidden_input += W1[x][y] * input[y];
+        for(var j = 0; j < input.length; j++){
+            hidden_input += W1[i][j] * input[j];
         }
         hidden_layer.push(sigmoid(hidden_input));
     }
 
-    for(x = 0; x < output_layer_neurons; x++){
+    for(var x = 0; x < output_layer_neurons; x++){
         var output_layer_input = 0;
-        for (y = 0; y < hidden_layer_neurons; y++){
+        for(var y = 0; y < hidden_layer_neurons; y++){
             output_layer_input += W2[x][y] * hidden_layer[y];
         }
         output_layer.push(sigmoid(output_layer_input));
@@ -86,24 +92,37 @@ function feed_foward(input, Tphase){
     }
 }
 
+function copy_array(array){
+    var na = [];
+    for(var i = 0; i < array.length; i++){
+        na.push([]);
+        for(var j = 0; j < array[i].length; j++){
+            na[i].push(array[i][j]);
+        }
+    }
+    return na;
+}
+
 function back_propagation(){
-    var nw2 = W2.slice();
-    for(i = 0; i < output_layer.length; i++){
+    var nw2 = copy_array(W2);
+    for(var i = 0; i < output_layer.length; i++){
         var output = output_layer[i];
-        if(outputs[i] === 1 && output < 0.8 || outputs[i] === 0 && output > 0.2){
+        if((outputs[i] === 1 && output < 0.9) || (outputs[i] === 0 && output > 0.1)){
+            unbalanced = true;
             var delta = output * (1 - output) * (outputs[i] - output);
-            for(y = 0; y < nw2[i].length; y++){
-                nw2[i][y] = nw2[i][y] + alpha * hidden_layer[y] * delta;
+            for(var j = 0; j < nw2[i].length; j++){
+                nw2[i][j] = W2[i][j] + alpha * hidden_layer[j] * delta;
             }
-            for(x = 0; x < W1.length; x++){
+            for(var x = 0; x < W1.length; x++){
                 delta2 = hidden_layer[x] * (1 - hidden_layer[x]) * (W2[i][x] * delta);
-                for(z = 0; z < W1[x].length; z++){
-                    W1[x][z] = W1[x][z] + alpha * inputs[z] * delta2;
+                for(var y = 0; y < W1[x].length; y++){
+                    var temp = W1[x][y];
+                    W1[x][y] = temp + alpha * inputs[y] * delta2;
                 }
             }
         }
     }
-    W2 = nw2.slice();
+    W2 = copy_array(nw2);
 }
 
 function toByteArray(input){
@@ -118,23 +137,12 @@ function toByteArray(input){
     return result;
 }
 
-function training(){
+function load_images(){
     var canvas = document.getElementById("myCanvas"),
         canvasContext = canvas.getContext("2d");
     for(var i = 0; i < 36; i++){
         var myImg = new Image();
         //myImg.crossOrigin = 'anonymous';
-
-        // create an empty canvas element
-        /*myImg.onload = function() {
-            canvas.width = this.width;
-            canvas.height = this.height;
-
-            canvasContext.drawImage(this, 0, 0, this.width, this.height);
-            var imgData = canvasContext.getImageData(0, 0, 5, 5).data;
-            console.log(i);
-            console.log(imgData);
-        };*/
 
         myImg.onload = (function(value){
             return function(){
@@ -143,7 +151,10 @@ function training(){
 
                 canvasContext.drawImage(this, 0, 0, this.width, this.height);
                 var imgData = canvasContext.getImageData(0, 0, 5, 5).data;
-                feed_foward(toByteArray(imgData), true);
+
+                //console.log(value);
+                //console.log(toByteArray(imgData));
+                training_set.push(toByteArray(imgData));
             }
         })(i);
 
@@ -151,10 +162,38 @@ function training(){
     }
 }
 
-variable_initialization();
-training();
-feed_foward(toByteArray([255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255]), false);
+function training(){
+    //var x = 0;
+    //while(unbalanced){
+    for(var x = 0; x < 6000; x++){
+        if(x % 100 === 0){
+            console.log('Iteration: ', x);
+        }
+        unbalanced = false;
+        for(var i = 0; i < 36; i++) {
+            outputs[i] = 1;
+            feed_foward(training_set[i], true);
+            outputs[i] = 0;
+        }
+        x += 1;
+    }
+    console.log("Done training");
+    //outputs[0] = 1;
+    //feed_foward([0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0], true);
+}
 
+function train(){
+    variable_initialization();
+    training();
+}
+
+function test(){
+    outputs[0] = 1;
+    feed_foward([1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0], false);
+    outputs[0] = 0;
+}
+
+load_images();
 /*W1 = [[0.1, -0.7], [0.5, 0.3]];
 W2 = [[0.2, 0.4]];
 outputs[0] = 1;
